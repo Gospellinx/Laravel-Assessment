@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 SQL Query Challenge - E-commerce Database
 This README provides an explanation for the SQL queries that were written to analyze an e-commerce database from the queries.sql file, consisting of two tables: orders and order_items.
 
@@ -106,3 +107,6 @@ id	name	total_sold
 105	Product E	350
 Conclusion
 These SQL queries help analyze sales data from an e-commerce platform. By calculating total revenue, identifying top customers, and finding the most popular products, businesses can gain valuable insights to improve operations and marketing strategies.
+=======
+# Laravel-Assessment
+>>>>>>> 92c7d0149c664c11c3cd76e52cce309e73b8984c
