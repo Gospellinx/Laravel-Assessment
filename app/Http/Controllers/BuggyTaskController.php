@@ -1,51 +1,65 @@
 <?php
 
-namespace App\Https\Controllers;
+namespace App\Http\Controllers;
 
-use Illuminate\Https\Request;
+use Illuminate\Http\Request;
 use App\Models\Task;
-use DB;
+use Illuminate\Http\Response;
 
 class BuggyTaskController extends Controller
 {
-    // No authentication middleware
+    public function __construct()
+    {
+        $this->middleware('auth:sanctum'); // Ensure authentication
+    }
 
     public function index()
     {
-        $tasks = Task::all(); 
-
-        return response()->json($tasks);
+        return response()->json(Task::all(), Response::HTTP_OK);
     }
 
     public function store(Request $request)
     {
-        $task = new Task();
-        $task->title = $request->title;
-        $task->description = $request->description;
-        $task->status = $request->status;
-        $task->due_date = $request->due_date;
-        $task->save();
-        
-        return response()->json($task);
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'status' => 'required|in:pending,completed',
+            'due_date' => 'required|date|after:today',
+        ]);
+
+        $task = Task::create($request->all());
+
+        return response()->json($task, Response::HTTP_CREATED);
     }
 
     public function update(Request $request, $id)
     {
         $task = Task::find($id);
-        
-        $task->title = $request->title; 
-        $task->description = $request->description;
-        $task->status = $request->status;
-        $task->due_date = $request->due_date;
-        $task->save();
+        if (!$task) {
+            return response()->json(["error" => "Task not found"], Response::HTTP_NOT_FOUND);
+        }
 
-        return response()->json($task);
+        $request->validate([
+            'title' => 'sometimes|string|max:255',
+            'description' => 'nullable|string',
+            'status' => 'sometimes|in:pending,completed',
+            'due_date' => 'sometimes|date|after:today',
+        ]);
+
+        $task->update($request->all());
+
+        return response()->json($task, Response::HTTP_OK);
     }
 
     public function destroy($id)
     {
-        Task::destroy($id); 
+        $task = Task::find($id);
+        if (!$task) {
+            return response()->json(["error" => "Task not found"], Response::HTTP_NOT_FOUND);
+        }
 
-        return response()->json(["message" => "Task deleted"]);
+        $task->delete();
+
+        return response()->json(["message" => "Task deleted successfully"], Response::HTTP_NO_CONTENT);
     }
 }
